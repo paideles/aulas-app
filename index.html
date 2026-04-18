@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Home</title>
 
 <style>
+
 body{
   margin:0;
   font-family:Arial;
@@ -12,12 +15,18 @@ body{
   color:#fff;
 }
 
+/* TOPO */
 .topbar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
   height:40px;
   background:#4b0000;
   display:flex;
   align-items:center;
   padding:0 15px;
+  z-index:1000;
 }
 
 .menu-btn{
@@ -26,6 +35,7 @@ body{
   color:#ffcc00;
 }
 
+/* MENU */
 .sidebar{
   position:fixed;
   top:0;
@@ -35,7 +45,7 @@ body{
   background:#1a0000;
   padding:20px;
   transition:0.3s;
-  z-index:999;
+  z-index:9999;
 }
 
 .sidebar.active{ left:0; }
@@ -46,89 +56,125 @@ body{
   cursor:pointer;
 }
 
+/* OVERLAY */
 .overlay{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.5);
   display:none;
-  z-index:998;
+  z-index:9998;
 }
 
 .overlay.active{ display:block; }
 
-/* 🔥 BANNER AGORA MOSTRA A IMAGEM INTEIRA */
+/* BANNER */
 .banner{
-  height:250px;
-  margin:5px;
-  border-radius:10px;
-  background:url('icon.png') center center/contain no-repeat;
-  background-color:#000;
+  position:fixed;
+  top:40px;
+  left:0;
+  width:100%;
+  height:100px;
+  background:#000;
+  z-index:999;
+}
+
+.banner img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* CONTEÚDO (SÓ AULAS ROLA) */
+#conteudo{
+  position:absolute;
+  top:140px;
+  left:0;
+  width:100%;
+  height:calc(100vh - 140px);
+  overflow-y:auto;
+  padding:10px;
 }
 
 /* GRID */
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
-  gap:8px;
-  padding:8px;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:10px;
 }
 
+/* CARD */
 .card{
   background:#1a1a1a;
   border-radius:6px;
   overflow:hidden;
+  cursor:pointer;
 }
 
 .card img{
   width:100%;
-  height:80px;
+  height:90px;
   object-fit:cover;
 }
 
 .card h3{
-  font-size:12px;
-  padding:5px;
+  font-size:13px;
+  padding:6px;
 }
 
-.video-box{ padding:10px; }
+/* VIDEO */
+.video-box{
+  padding:10px;
+}
 
 button{
   padding:10px;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
   background:#8B0000;
   color:#ffcc00;
 }
 
-/* 🔥 vídeo clicável */
-video, iframe{
-  width:100%;
-}
 </style>
 </head>
 
 <body>
 
+<!-- 🔐 PROTEÇÃO DE LOGIN (ALUNO) -->
+<script>
+if(!localStorage.getItem("tipo")){
+  location.href = "login.html"
+}
+</script>
+
+<!-- TOP -->
 <div class="topbar">
   <div class="menu-btn" onclick="abrirMenu()">☰</div>
 </div>
 
+<!-- BANNER -->
+<div class="banner">
+  <img src="icon.png">
+</div>
+
+<!-- MENU -->
 <div class="sidebar" id="menu">
   <h2 style="color:#ffcc00;">🔥 2N</h2>
+
   <div class="menu-item" onclick="go('index.html')">🏠 Início</div>
+  <div class="menu-item" onclick="go('perfil.html')">👤 Perfil</div>
+  <div class="menu-item" onclick="go('config.html')">⚙️ Configurações</div>
+  <div class="menu-item" onclick="go('ajuda.html')">💬 Ajuda</div>
   <div class="menu-item" onclick="go('admin.html')">🛠️ Admin</div>
 </div>
 
 <div class="overlay" id="overlay" onclick="fecharMenu()"></div>
 
-<div class="banner"></div>
-
-<div id="conteudo"></div>
+<!-- CONTEÚDO -->
+<div id="conteudo">Carregando...</div>
 
 <script>
 
-const URL = "https://raw.githubusercontent.com/paideles/aulas-app/main/aulas.json?v=" + Date.now()
-
+// MENU
 function abrirMenu(){
   document.getElementById("menu").classList.add("active")
   document.getElementById("overlay").classList.add("active")
@@ -139,16 +185,12 @@ function fecharMenu(){
   document.getElementById("overlay").classList.remove("active")
 }
 
-function go(p){ location.href = p }
-
-// fullscreen helper
-function telaCheia(el){
-  if (el.requestFullscreen) {
-    el.requestFullscreen()
-  } else if (el.webkitRequestFullscreen) {
-    el.webkitRequestFullscreen()
-  }
+function go(p){
+  location.href = p
 }
+
+// JSON
+const URL = "https://raw.githubusercontent.com/paideles/aulas-app/main/aulas.json?v=" + Date.now()
 
 function carregar(){
 
@@ -174,38 +216,44 @@ function carregar(){
   })
 }
 
-// 🔥 ABRIR AULA COM FULLSCREEN NO CLIQUE
+// ABRIR AULA
 function abrir(i){
 
-  let a = window.AULAS[i]
-  let video = ""
+  let aula = window.AULAS[i]
 
-  if(a.video.includes("youtu")){
-    let id = a.video.includes("watch?v=")
-      ? a.video.split("watch?v=")[1]
-      : a.video.split("youtu.be/")[1]
+  let videoHTML = ""
 
-    video = `
-    <iframe src="https://www.youtube.com/embed/${id}"
+  if(aula.video.includes("youtube") || aula.video.includes("youtu.be")){
+
+    let id = aula.video.includes("watch?v=")
+      ? aula.video.split("watch?v=")[1]
+      : aula.video.split("youtu.be/")[1]
+
+    videoHTML = `
+    <iframe width="100%" height="250"
+    src="https://www.youtube.com/embed/${id}"
     frameborder="0" allowfullscreen></iframe>`
   } else {
-    video = `
-    <video controls onclick="telaCheia(this)">
-      <source src="${a.video}" type="video/mp4">
+    videoHTML = `
+    <video controls width="100%">
+      <source src="${aula.video}" type="video/mp4">
     </video>`
   }
 
   document.getElementById("conteudo").innerHTML = `
-  <div class="video-box">
-    <h2>${a.titulo}</h2>
-    ${video}
-    <br><br>
-    <button onclick="carregar()">⬅️ Voltar</button>
-  </div>`
+    <div class="video-box">
+      <h2>${aula.titulo}</h2>
+      ${videoHTML}
+      <br><br>
+      <button onclick="carregar()">⬅️ Voltar</button>
+    </div>
+  `
 }
 
 carregar()
-
+if(localStorage.getItem("tipo") !== "admin"){
+  document.getElementById("adm").style.display = "none"
+}
 </script>
 
 </body>
