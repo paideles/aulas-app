@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<style>
+
+/* BASE */
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(180deg,#2b0000,#0a0a0a);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:#fff;
+}
+
+/* CARD */
+.container{
+  background:#1a0000;
+  padding:30px;
+  border-radius:15px;
+  width:90%;
+  max-width:320px;
+  box-shadow:0 0 20px rgba(0,0,0,0.7);
+  text-align:center;
+}
+
+/* LOGO */
+.logo{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  object-fit:cover;
+  margin-bottom:15px;
+  border:3px solid #ffcc00;
+}
+
+/* TITULO */
+h2{
+  color:#ffcc00;
+  margin-bottom:20px;
+}
+
+/* INPUT */
+input{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:8px;
+  background:#000;
+  color:#fff;
+}
+
+/* BOTÃO */
+button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:#8B0000;
+  color:#ffcc00;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#a00000;
+}
+
+/* MSG */
+.msg{
+  margin-top:10px;
+  color:red;
+  font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- SUA FOTO -->
+  <img src="icon.png" class="logo">
+
+  <h2>🔐 Entrar</h2>
+
+  <input id="senha" type="password" placeholder="Digite sua senha">
+
+  <button onclick="login()">Entrar</button>
+
+  <div class="msg" id="msg"></div>
+
+</div>
+
+<script>
+
+function login(){
+
+  let senha = document.getElementById("senha").value
+  let msg = document.getElementById("msg")
+
+  if(senha === "322930"){
+    localStorage.setItem("tipo","admin")
+    localStorage.setItem("logado","sim")
+    location.href="./index.html"
+  }
+  else if(senha === "81000976"){
+    localStorage.setItem("tipo","aluno")
+    localStorage.setItem("logado","sim")
+    location.href="./index.html"
+  }
+  else{
+    msg.innerText = "❌ Senha incorreta"
+  }
+}
+
+</script>
+
+</body>
+</html>

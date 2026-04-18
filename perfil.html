@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Perfil</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0a0a0a;
+  color:#fff;
+  text-align:center;
+}
+
+/* TOPO */
+.top{
+  background:#4b0000;
+  padding:15px;
+  font-size:20px;
+  color:#ffcc00;
+}
+
+/* CARD */
+.card{
+  background:#1a0000;
+  margin:20px;
+  padding:20px;
+  border-radius:15px;
+}
+
+/* INPUT */
+input{
+  width:90%;
+  padding:12px;
+  margin:8px;
+  border-radius:8px;
+  border:none;
+  background:#000;
+  color:#fff;
+}
+
+/* BOTÃO */
+button{
+  padding:12px;
+  margin:10px;
+  background:#8B0000;
+  color:#ffcc00;
+  border:none;
+  border-radius:8px;
+  width:90%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="top">👤 Meu Perfil</div>
+
+<div class="card">
+
+<input id="nome" placeholder="Nome ou apelido">
+<input id="telefone" placeholder="Telefone">
+<input id="email" placeholder="Email">
+
+<button onclick="salvar()">💾 Salvar</button>
+
+</div>
+
+<div class="card" id="ver"></div>
+
+<script>
+
+// 💾 salvar dados
+function salvar(){
+
+  let perfil = {
+    nome: document.getElementById("nome").value,
+    telefone: document.getElementById("telefone").value,
+    email: document.getElementById("email").value
+  }
+
+  localStorage.setItem("perfil", JSON.stringify(perfil))
+
+  alert("Salvo com sucesso 🔥")
+
+  mostrar()
+}
+
+// 👁️ mostrar dados
+function mostrar(){
+
+  let p = JSON.parse(localStorage.getItem("perfil") || "{}")
+
+  document.getElementById("ver").innerHTML = `
+    <h3>📌 Seus dados</h3>
+    <p>👤 ${p.nome || "-"}</p>
+    <p>📞 ${p.telefone || "-"}</p>
+    <p>📧 ${p.email || "-"}</p>
+  `
+
+  // preencher inputs
+  document.getElementById("nome").value = p.nome || ""
+  document.getElementById("telefone").value = p.telefone || ""
+  document.getElementById("email").value = p.email || ""
+}
+
+mostrar()
+
+</script>
+
+</body>
+</html>

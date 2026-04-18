@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Config</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0a0a0a;
+  color:#fff;
+  text-align:center;
+}
+
+button{
+  padding:12px;
+  margin:10px;
+  background:#8B0000;
+  color:#ffcc00;
+  border:none;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>⚙️ Configurações</h2>
+
+<button onclick="tema()">🌙 Tema</button>
+<button onclick="voltar()">⬅️ Voltar</button>
+
+<script>
+
+function voltar(){
+  location.href="./index.html"
+}
+
+function tema(){
+  let t=localStorage.getItem("tema")||"dark"
+
+  if(t==="dark"){
+    document.body.style.background="#fff"
+    document.body.style.color="#000"
+    localStorage.setItem("tema","light")
+  }else{
+    document.body.style.background="#0a0a0a"
+    document.body.style.color="#fff"
+    localStorage.setItem("tema","dark")
+  }
+}
+
+</script>
+
+</body>
+</html>
