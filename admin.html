@@ -21,63 +21,54 @@ input{
 }
 
 button{
-  padding:10px;
-  margin:5px;
+  padding:12px;
+  margin:8px;
   background:#8B0000;
   color:#ffcc00;
   border:none;
   border-radius:8px;
 }
 
-.item{
-  background:#1a1a1a;
-  margin:10px;
-  padding:10px;
-  border-radius:8px;
-}
-
 img{
   margin-top:10px;
-  border-radius:8px;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 PROTEÇÃO -->
-<script>
-if(localStorage.getItem("tipo") !== "admin"){
-  location.href = "login.html"
-}
-</script>
-
-<h2>🛠️ Admin - Aulas</h2>
+<h2>🛠️ Criar Aula</h2>
 
 <input id="titulo" placeholder="Título"><br>
 <input id="video" placeholder="Link do vídeo"><br>
 
-<!-- 📷 CAPA -->
-<input type="file" id="capaFile" accept="image/*"><br>
+<input type="file" id="capaInput"><br>
 <img id="preview" width="120"><br>
 
-<button onclick="salvar()">➕ Adicionar Aula</button>
+<button onclick="salvar()">Salvar Aula</button>
 
-<hr>
+<p id="msg"></p>
 
-<h3>📚 Aulas</h3>
-<div id="lista"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 
-const URL = "https://raw.githubusercontent.com/paideles/aulas-app/main/aulas.json"
+const supabase = window.supabase.createClient(
+  "https://rokyxzsnxsuabigohmpm.supabase.co",
+  "sb_publishable_7yZNrxHvrI11LCaeJLsVvQ_-9sXaG6P"
+)
 
-let aulas = []
-let editIndex = null
+// 🔐 PROTEÇÃO ADMIN
+if(localStorage.getItem("tipo") !== "admin"){
+  alert("Acesso negado")
+  location.href = "login.html"
+}
+
 let capaBase64 = ""
 
-// 📷 converter imagem
-document.getElementById("capaFile").addEventListener("change", function(e){
+// 📷 CAPA
+document.getElementById("capaInput").addEventListener("change", function(e){
 
   let file = e.target.files[0]
   if(!file) return
@@ -92,116 +83,35 @@ document.getElementById("capaFile").addEventListener("change", function(e){
   reader.readAsDataURL(file)
 })
 
-// CARREGAR
-function carregar(){
-
-  fetch(URL)
-  .then(r=>r.json())
-  .then(data=>{
-    aulas = data
-    render()
-  })
-}
-
-// LISTA
-function render(){
-
-  let html = ""
-
-  aulas.forEach((a,i)=>{
-    html += `
-    <div class="item">
-      <b>${a.titulo}</b><br>
-
-      <img src="${a.capa}" width="120"><br>
-
-      <button onclick="editar(${i})">✏️ Editar</button>
-      <button onclick="remover(${i})">🗑️ Remover</button>
-    </div>
-    `
-  })
-
-  document.getElementById("lista").innerHTML = html
-}
-
-// ➕ SALVAR
+// 💾 SALVAR
 async function salvar(){
 
-  const token = "COLE_SEU_TOKEN_AQUI"
-  const repo = "paideles/aulas-app"
-  const path = "aulas.json"
+  let titulo = document.getElementById("titulo").value
+  let video = document.getElementById("video").value
 
-  let res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`)
-  let data = await res.json()
-
-  let lista = JSON.parse(atob(data.content))
-
-  let nova = {
-    titulo: document.getElementById("titulo").value,
-    video: document.getElementById("video").value,
-    capa: capaBase64 || "icon.png"
+  if(!titulo || !video){
+    msg.innerText = "Preencha tudo"
+    return
   }
 
-  lista.push(nova)
+  let { error } = await supabase
+    .from("aulas")
+    .insert([
+      { titulo, video, capa: capaBase64 || "icon.png" }
+    ])
 
-  let novo = btoa(JSON.stringify(lista, null, 2))
+  if(error){
+    msg.innerText = "❌ Erro ao salvar"
+    console.log(error)
+  } else {
+    msg.innerText = "✅ Aula salva!"
 
-  await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-    method:"PUT",
-    headers:{
-      Authorization:`token ${token}`
-    },
-    body: JSON.stringify({
-      message:"add aula",
-      content: novo,
-      sha: data.sha
-    })
-  })
-
-  carregar()
+    document.getElementById("titulo").value = ""
+    document.getElementById("video").value = ""
+    preview.src = ""
+    capaBase64 = ""
+  }
 }
-
-// ✏️ EDITAR
-function editar(i){
-  document.getElementById("titulo").value = aulas[i].titulo
-  document.getElementById("video").value = aulas[i].video
-  preview.src = aulas[i].capa
-  editIndex = i
-  capaBase64 = aulas[i].capa
-}
-
-// 🗑️ REMOVER
-async function remover(i){
-
-  const token = "COLE_SEU_TOKEN_AQUI"
-  const repo = "paideles/aulas-app"
-  const path = "aulas.json"
-
-  let res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`)
-  let data = await res.json()
-
-  let lista = JSON.parse(atob(data.content))
-
-  lista.splice(i,1)
-
-  let novo = btoa(JSON.stringify(lista, null, 2))
-
-  await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
-    method:"PUT",
-    headers:{
-      Authorization:`token ${token}`
-    },
-    body: JSON.stringify({
-      message:"remove aula",
-      content: novo,
-      sha: data.sha
-    })
-  })
-
-  carregar()
-}
-
-carregar()
 
 </script>
 
