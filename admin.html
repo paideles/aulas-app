@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
@@ -35,6 +35,11 @@ button{
   padding:10px;
   border-radius:8px;
 }
+
+img{
+  margin-top:10px;
+  border-radius:8px;
+}
 </style>
 </head>
 
@@ -52,6 +57,10 @@ if(localStorage.getItem("tipo") !== "admin"){
 <input id="titulo" placeholder="Título"><br>
 <input id="video" placeholder="Link do vídeo"><br>
 
+<!-- 📷 CAPA -->
+<input type="file" id="capaFile" accept="image/*"><br>
+<img id="preview" width="120"><br>
+
 <button onclick="salvar()">➕ Adicionar Aula</button>
 
 <hr>
@@ -65,8 +74,25 @@ const URL = "https://raw.githubusercontent.com/paideles/aulas-app/main/aulas.jso
 
 let aulas = []
 let editIndex = null
+let capaBase64 = ""
 
-// CARREGAR AULAS
+// 📷 converter imagem
+document.getElementById("capaFile").addEventListener("change", function(e){
+
+  let file = e.target.files[0]
+  if(!file) return
+
+  let reader = new FileReader()
+
+  reader.onload = function(){
+    capaBase64 = reader.result
+    preview.src = capaBase64
+  }
+
+  reader.readAsDataURL(file)
+})
+
+// CARREGAR
 function carregar(){
 
   fetch(URL)
@@ -77,7 +103,7 @@ function carregar(){
   })
 }
 
-// MOSTRAR LISTA
+// LISTA
 function render(){
 
   let html = ""
@@ -86,6 +112,8 @@ function render(){
     html += `
     <div class="item">
       <b>${a.titulo}</b><br>
+
+      <img src="${a.capa}" width="120"><br>
 
       <button onclick="editar(${i})">✏️ Editar</button>
       <button onclick="remover(${i})">🗑️ Remover</button>
@@ -111,7 +139,7 @@ async function salvar(){
   let nova = {
     titulo: document.getElementById("titulo").value,
     video: document.getElementById("video").value,
-    capa: "icon.png"
+    capa: capaBase64 || "icon.png"
   }
 
   lista.push(nova)
@@ -137,7 +165,9 @@ async function salvar(){
 function editar(i){
   document.getElementById("titulo").value = aulas[i].titulo
   document.getElementById("video").value = aulas[i].video
+  preview.src = aulas[i].capa
   editIndex = i
+  capaBase64 = aulas[i].capa
 }
 
 // 🗑️ REMOVER
