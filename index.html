@@ -25,7 +25,7 @@ body{
 }
 
 .menu-btn{
-  font-size:24px;
+  font-size:22px;
   cursor:pointer;
   color:#ffcc00;
 }
@@ -34,18 +34,16 @@ body{
 .sidebar{
   position:fixed;
   top:0;
-  left:-260px;
-  width:230px;
+  left:-250px;
+  width:220px;
   height:100%;
   background:#1a0000;
   padding:20px;
   transition:0.3s;
-  z-index:1000;
+  z-index:999;
 }
 
-.sidebar.active{
-  left:0;
-}
+.sidebar.active{ left:0; }
 
 .menu-item{
   margin:15px 0;
@@ -57,21 +55,19 @@ body{
 .overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.5);
   display:none;
-  z-index:999;
+  z-index:998;
 }
 
-.overlay.active{
-  display:block;
-}
+.overlay.active{ display:block; }
 
 /* BANNER */
 .banner{
-  height:160px;
+  height:120px;
   margin:5px;
-  border-radius:8px;
-  background:url('icon.png') center/contain no-repeat;
+  border-radius:5px;
+  background:url('./icon.png') center/contain no-repeat;
   background-color:#000;
 }
 
@@ -85,7 +81,7 @@ body{
 
 .card{
   background:#1a1a1a;
-  border-radius:8px;
+  border-radius:6px;
   overflow:hidden;
 }
 
@@ -111,7 +107,6 @@ button{
   border-radius:6px;
   background:#8B0000;
   color:#ffcc00;
-  cursor:pointer;
 }
 
 </style>
@@ -119,106 +114,102 @@ button{
 
 <body>
 
+<!-- 🔐 PROTEÇÃO -->
+<script>
+if(!localStorage.getItem("tipo")){
+  location.href = "login.html"
+}
+</script>
+
 <!-- TOPO -->
 <div class="topbar">
-  <div class="menu-btn" id="btnMenu">☰</div>
+  <div class="menu-btn" onclick="abrirMenu()">☰</div>
 </div>
+
+<!-- BANNER -->
+<div class="banner"></div>
 
 <!-- MENU -->
 <div class="sidebar" id="menu">
   <h2 style="color:#ffcc00;">🔥 2N</h2>
 
   <div class="menu-item" onclick="go('index.html')">🏠 Início</div>
-  <div class="menu-item" onclick="go('admin.html')">🛠️ Admin</div>
+  <div class="menu-item" onclick="go('perfil.html')">👤 Perfil</div>
+  <div class="menu-item" onclick="go('config.html')">⚙️ Configurações</div>
+  <div class="menu-item" onclick="go('ajuda.html')">💬 Ajuda</div>
+
+  <!-- ADMIN -->
+  <div id="adm" style="display:none;">
+    <div class="menu-item" onclick="go('admin.html')">🛠️ Admin</div>
+  </div>
+
   <div class="menu-item" onclick="sair()">🚪 Sair</div>
 </div>
 
-<div class="overlay" id="overlay"></div>
-
-<!-- BANNER -->
-<div class="banner"></div>
+<div class="overlay" id="overlay" onclick="fecharMenu()"></div>
 
 <!-- CONTEÚDO -->
-<div id="conteudo"></div>
-
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="conteudo">Carregando...</div>
 
 <script>
 
-// 🔐 LOGIN
-if(!localStorage.getItem("tipo")){
-  location.href = "login.html"
+// MENU
+function abrirMenu(){
+  document.getElementById("menu").classList.add("active")
+  document.getElementById("overlay").classList.add("active")
 }
 
-// 🔥 SUPABASE
-const supabase = window.supabase.createClient(
-  "https://rokyxzsnxsuabigohmpm.supabase.co",
-  "sb_publishable_7yZNrxHvrI11LCaeJLsVvQ_-9sXaG6P"
-)
+function fecharMenu(){
+  document.getElementById("menu").classList.remove("active")
+  document.getElementById("overlay").classList.remove("active")
+}
 
-// 🎯 MENU (SEM BUG)
-const btnMenu = document.getElementById("btnMenu")
-const menu = document.getElementById("menu")
-const overlay = document.getElementById("overlay")
-
-btnMenu.addEventListener("click", () => {
-  menu.classList.add("active")
-  overlay.classList.add("active")
-})
-
-overlay.addEventListener("click", () => {
-  menu.classList.remove("active")
-  overlay.classList.remove("active")
-})
-
-// 🔗 NAVEGAÇÃO
 function go(p){
   location.href = p
 }
 
+// 🔐 ADMIN
+if(localStorage.getItem("tipo") === "admin"){
+  document.getElementById("adm").style.display = "block"
+}
+
+// 🚪 LOGOUT
 function sair(){
   localStorage.clear()
   location.href = "login.html"
 }
 
-// 📚 CARREGAR AULAS
-async function carregar(){
+// 🔥 CARREGAR JSON COM PROTEÇÃO
+const URL = "https://raw.githubusercontent.com/paideles/aulas-app/main/aulas.json?v=" + Date.now()
 
-  let { data, error } = await supabase
-    .from("aulas")
-    .select("*")
-    .order("id", { ascending: false })
+function carregar(){
 
-  if(error){
-    document.getElementById("conteudo").innerHTML = "❌ Erro ao carregar"
-    console.log(error)
-    return
-  }
+  fetch(URL)
+  .then(r=>r.json())
+  .then(aulas=>{
 
-  if(!data || !data.length){
-    document.getElementById("conteudo").innerHTML = "⚠️ Nenhuma aula"
-    return
-  }
+    window.AULAS = aulas
 
-  window.AULAS = data
+    let html = `<div class="grid">`
 
-  let html = `<div class="grid">`
+    aulas.forEach((a,i)=>{
+      html += `
+      <div class="card" onclick="abrir(${i})">
+        <img src="${a.capa}">
+        <h3>${a.titulo}</h3>
+      </div>`
+    })
 
-  data.forEach((a,i)=>{
-    html += `
-    <div class="card" onclick="abrir(${i})">
-      <img src="${a.capa}">
-      <h3>${a.titulo}</h3>
-    </div>`
+    html += `</div>`
+
+    document.getElementById("conteudo").innerHTML = html
   })
-
-  html += `</div>`
-
-  document.getElementById("conteudo").innerHTML = html
+  .catch(()=>{
+    document.getElementById("conteudo").innerHTML = "❌ Erro ao carregar aulas"
+  })
 }
 
-// 🎬 ABRIR AULA
+// ABRIR AULA
 function abrir(i){
 
   let aula = window.AULAS[i]
@@ -248,10 +239,10 @@ function abrir(i){
       ${videoHTML}
       <br><br>
       <button onclick="carregar()">⬅️ Voltar</button>
-    </div>`
+    </div>
+  `
 }
 
-// 🚀 INICIAR
 carregar()
 
 </script>
