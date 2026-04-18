@@ -17,16 +17,11 @@ body{
 
 /* TOPO */
 .topbar{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
   height:40px;
   background:#4b0000;
   display:flex;
   align-items:center;
   padding:0 15px;
-  z-index:1000;
 }
 
 .menu-btn{
@@ -45,7 +40,7 @@ body{
   background:#1a0000;
   padding:20px;
   transition:0.3s;
-  z-index:9999;
+  z-index:999;
 }
 
 .sidebar.active{ left:0; }
@@ -62,37 +57,16 @@ body{
   inset:0;
   background:rgba(0,0,0,0.5);
   display:none;
-  z-index:9998;
 }
 
 .overlay.active{ display:block; }
 
 /* BANNER */
 .banner{
-  position:fixed;
-  top:40px;
-  left:0;
-  width:100%;
-  height:100px;
-  background:#000;
-  z-index:999;
-}
-
-.banner img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
-
-/* CONTEÚDO (SÓ AULAS ROLA) */
-#conteudo{
-  position:absolute;
-  top:140px;
-  left:0;
-  width:100%;
-  height:calc(100vh - 140px);
-  overflow-y:auto;
-  padding:10px;
+  height:120px;
+  margin:5px;
+  border-radius:5px;
+  background:url('icon.png') center/contain no-repeat;
 }
 
 /* GRID */
@@ -100,14 +74,13 @@ body{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
   gap:10px;
+  padding:10px;
 }
 
-/* CARD */
 .card{
   background:#1a1a1a;
   border-radius:6px;
   overflow:hidden;
-  cursor:pointer;
 }
 
 .card img{
@@ -139,22 +112,20 @@ button{
 
 <body>
 
-<!-- 🔐 PROTEÇÃO DE LOGIN (ALUNO) -->
+<!-- 🔐 PROTEÇÃO -->
 <script>
 if(!localStorage.getItem("tipo")){
   location.href = "login.html"
 }
 </script>
 
-<!-- TOP -->
+<!-- TOPO -->
 <div class="topbar">
   <div class="menu-btn" onclick="abrirMenu()">☰</div>
 </div>
 
 <!-- BANNER -->
-<div class="banner">
-  <img src="icon.png">
-</div>
+<div class="banner"></div>
 
 <!-- MENU -->
 <div class="sidebar" id="menu">
@@ -164,7 +135,15 @@ if(!localStorage.getItem("tipo")){
   <div class="menu-item" onclick="go('perfil.html')">👤 Perfil</div>
   <div class="menu-item" onclick="go('config.html')">⚙️ Configurações</div>
   <div class="menu-item" onclick="go('ajuda.html')">💬 Ajuda</div>
-  <div class="menu-item" onclick="go('admin.html')">🛠️ Admin</div>
+
+  <!-- ADMIN -->
+  <div id="adm" style="display:none;">
+    <div class="menu-item" onclick="go('admin.html')">🛠️ Admin</div>
+  </div>
+
+  <!-- 🚪 SAIR -->
+  <div class="menu-item" onclick="sair()">🚪 Sair</div>
+
 </div>
 
 <div class="overlay" id="overlay" onclick="fecharMenu()"></div>
@@ -187,6 +166,18 @@ function fecharMenu(){
 
 function go(p){
   location.href = p
+}
+
+// 🔐 MOSTRAR ADMIN SÓ SE FOR ADMIN
+if(localStorage.getItem("tipo") === "admin"){
+  document.getElementById("adm").style.display = "block"
+}
+
+// 🚪 LOGOUT
+function sair(){
+  localStorage.removeItem("tipo")
+  localStorage.removeItem("logado")
+  location.href = "login.html"
 }
 
 // JSON
@@ -251,9 +242,7 @@ function abrir(i){
 }
 
 carregar()
-if(localStorage.getItem("tipo") !== "admin"){
-  document.getElementById("adm").style.display = "none"
-}
+
 </script>
 
 </body>
