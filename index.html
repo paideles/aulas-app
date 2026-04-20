@@ -218,21 +218,33 @@ function abrir(i){
 
   if(aula.video.includes("youtube") || aula.video.includes("youtu.be")){
 
-    let id = aula.video.includes("watch?v=")
-      ? aula.video.split("watch?v=")[1]
-      : aula.video.split("youtu.be/")[1]
+  let id = aula.video.includes("watch?v=")
+    ? aula.video.split("watch?v=")[1]
+    : aula.video.split("youtu.be/")[1]
 
-    videoHTML = `
-    <iframe width="100%" height="250"
-    src="https://www.youtube.com/embed/${id}"
-    frameborder="0" allowfullscreen></iframe>`
-  } else {
-    videoHTML = `
-    <video controls width="100%">
-      <source src="${aula.video}" type="video/mp4">
-    </video>`
-  }
+  videoHTML = `
+  <iframe width="100%" height="250"
+  src="https://www.youtube.com/embed/${id}"
+  frameborder="0" allowfullscreen></iframe>`
 
+} else if(aula.video.includes("drive.google.com")){
+
+  videoHTML = `
+  <iframe 
+    src="${aula.video}" 
+    width="100%" 
+    height="250"
+    allow="autoplay"
+    allowfullscreen>
+  </iframe>`
+
+} else {
+
+  videoHTML = `
+  <video controls width="100%">
+    <source src="${aula.video}" type="video/mp4">
+  </video>`
+}
   document.getElementById("conteudo").innerHTML = `
     <div class="video-box">
       <h2>${aula.titulo}</h2>
